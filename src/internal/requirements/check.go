@@ -2,27 +2,17 @@ package requirements
 
 import (
 	"fmt"
-	"os/exec"
-	"strings"
+	"serve-ready/src/internal/services/caches"
+	"serve-ready/src/internal/services/databases"
+	"serve-ready/src/internal/services/runtiems"
+	"serve-ready/src/internal/services/webservers"
 )
 
-// Color definitions
 const (
-	greenCheck = "\033[32m✔\033[0m" // Green check mark
-	redCross   = "\033[31m✘\033[0m" // Red cross mark
-	resetColor = "\033[0m"
+	greenCheck = "\033[32m✔\033[0m"
+	redCross   = "\033[31m✘\033[0m"
 )
 
-// CheckVersion checks the version of a command
-func CheckVersion(command string, args ...string) (string, error) {
-	out, err := exec.Command(command, args...).Output()
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(string(out)), nil
-}
-
-// CheckRequirements checks the selected framework, database, and cache
 func CheckRequirements(framework, database, cache, webserver string) bool {
 	allPassed := true
 
@@ -36,51 +26,97 @@ func CheckRequirements(framework, database, cache, webserver string) bool {
 
 	// PHP Check
 	if requirements.PHPVersion != "" {
-		fmt.Printf("PHP Requirement: %s ", requirements.PHPVersion)
-		phpVersion, err := CheckVersion("php", "-v")
-		if err != nil || !strings.Contains(phpVersion, requirements.PHPVersion) {
-			fmt.Printf("%s PHP is not installed or version mismatch.\n", redCross)
+		if !services.CheckPHPVersion(requirements.PHPVersion) {
 			allPassed = false
 		} else {
-			fmt.Printf("%s PHP version is compatible: %s\n", greenCheck, phpVersion)
+			if len(requirements.PHPExtensions) > 0 && !services.CheckPHPExtensions(requirements.PHPExtensions) {
+				allPassed = false
+			}
+			if len(requirements.ComposerPackages) > 0 && !services.CheckComposerPackages(requirements.ComposerPackages) {
+				allPassed = false
+			}
 		}
 	}
 
 	// Node.js Check
 	if requirements.NodeVersion != "" {
-		fmt.Printf("Node.js Requirement: %s ", requirements.NodeVersion)
-		nodeVersion, err := CheckVersion("node", "-v")
-		if err != nil || !strings.Contains(nodeVersion, requirements.NodeVersion) {
-			fmt.Printf("%s Node.js is not installed or version mismatch.\n", redCross)
+		if !services.CheckNodeVersion(requirements.NodeVersion) {
 			allPassed = false
 		} else {
-			fmt.Printf("%s Node.js version is compatible: %s\n", greenCheck, nodeVersion)
+			if len(requirements.NodePackages) > 0 && !services.CheckNodePackages(requirements.NodePackages) {
+				allPassed = false
+			}
 		}
 	}
 
 	// Python Check
 	if requirements.PythonVersion != "" {
-		fmt.Printf("Python Requirement: %s ", requirements.PythonVersion)
-		pythonVersion, err := CheckVersion("python3", "--version")
-		if err != nil || !strings.Contains(pythonVersion, requirements.PythonVersion) {
-			fmt.Printf("%s Python is not installed or version mismatch.\n", redCross)
+		if !services.CheckPythonVersion(requirements.PythonVersion) {
 			allPassed = false
 		} else {
-			fmt.Printf("%s Python version is compatible: %s\n", greenCheck, pythonVersion)
+			if len(requirements.PythonPackages) > 0 && !services.CheckPythonPackages(requirements.PythonPackages) {
+				allPassed = false
+			}
 		}
 	}
 
-	// Optional checks
+	// Database Check
 	if database != "" {
-		fmt.Printf("Database: %s %s\n", database, greenCheck)
+		switch database {
+		case "mysql":
+			if !services.CheckMySQLVersion(requirements.MySQLVersion) {
+				allPassed = false
+			}
+		case "mariadb":
+			if !services.CheckMariaDBVersion(requirements.MariaDBVersion) {
+				allPassed = false
+			}
+		case "postgresql":
+			if !services.CheckPostgreSQLVersion(requirements.PostgreSQLVersion) {
+				allPassed = false
+			}
+		case "mongodb":
+			if !services.CheckMongoDBVersion(requirements.MongoDBVersion) {
+				allPassed = false
+			}
+		default:
+			fmt.Printf("%s Unsupported database: %s\n", redCross, database)
+			allPassed = false
+		}
 	}
 
+	// Cache Check
 	if cache != "" {
-		fmt.Printf("Cache: %s %s\n", cache, greenCheck)
+		switch cache {
+		case "redis":
+			if !services.CheckRedisVersion(requirements.RedisVersion) {
+				allPassed = false
+			}
+		case "firebase":
+			if !services.CheckFirebaseCLI() {
+				allPassed = false
+			}
+		default:
+			fmt.Printf("%s Unsupported cache: %s\n", redCross, cache)
+			allPassed = false
+		}
 	}
 
+	// Web Server Check
 	if webserver != "" {
-		fmt.Printf("Web Server: %s %s\n", webserver, greenCheck)
+		switch webserver {
+		case "nginx":
+			if !services.CheckNginxVersion(requirements.NginxVersion) {
+				allPassed = false
+			}
+		case "apache":
+			if !services.CheckApacheVersion(requirements.ApacheVersion) {
+				allPassed = false
+			}
+		default:
+			fmt.Printf("%s Unsupported web server: %s\n", redCross, webserver)
+			allPassed = false
+		}
 	}
 
 	return allPassed
