@@ -42,7 +42,7 @@ func main() {
 
 func displaySystemInfo() {
 	labelColor := color.New(color.FgMagenta).SprintFunc()
-	valueColor := color.New(color.FgCyan).SprintFunc()
+	valueColor := color.New(color.FgGreen).SprintFunc()
 	bold := color.New(color.Bold).SprintFunc()
 
 	hostInfo, _ := host.Info()

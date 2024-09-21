@@ -7,7 +7,9 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 )
 
+// GetSelections handles prompting the user for selections
 func GetSelections() (string, string, string, string, error) {
+	// Framework selection
 	frameworkOptions, err := requirements.ListFilesInDirectory("frameworks")
 	if err != nil {
 		return "", "", "", "", err
@@ -21,17 +23,12 @@ func GetSelections() (string, string, string, string, error) {
 	survey.AskOne(prompt, &selectedFramework)
 	fmt.Printf("Selected framework: %s\n\n", selectedFramework)
 
-	fmt.Println("Checking runtime and package manager for the selected framework...")
-
-	databaseOptions, err := requirements.ListFilesInDirectory("databases")
-	if err != nil {
-		return "", "", "", "", err
-	}
-
+	// Hardcoded database options
+	databaseOptions := []string{"MySQL", "PostgreSQL", "Skip"}
 	selectedDatabase := ""
 	prompt = &survey.Select{
 		Message: "Would you like to select a database? (Optional)",
-		Options: append([]string{"Skip"}, databaseOptions...),
+		Options: databaseOptions,
 	}
 	survey.AskOne(prompt, &selectedDatabase)
 	if selectedDatabase == "Skip" {
@@ -39,15 +36,12 @@ func GetSelections() (string, string, string, string, error) {
 	}
 	fmt.Printf("Selected database: %s\n\n", selectedDatabase)
 
-	cacheOptions, err := requirements.ListFilesInDirectory("caches")
-	if err != nil {
-		return "", "", "", "", err
-	}
-
+	// Hardcoded cache options
+	cacheOptions := []string{"Redis", "Memcached", "Skip"}
 	selectedCache := ""
 	prompt = &survey.Select{
 		Message: "Would you like to select a cache? (Optional)",
-		Options: append([]string{"Skip"}, cacheOptions...),
+		Options: cacheOptions,
 	}
 	survey.AskOne(prompt, &selectedCache)
 	if selectedCache == "Skip" {
@@ -55,15 +49,12 @@ func GetSelections() (string, string, string, string, error) {
 	}
 	fmt.Printf("Selected cache: %s\n\n", selectedCache)
 
-	webserverOptions, err := requirements.ListFilesInDirectory("webservers")
-	if err != nil {
-		return "", "", "", "", err
-	}
-
+	// Hardcoded web server options
+	webserverOptions := []string{"Nginx", "Apache", "Skip"}
 	selectedWebserver := ""
 	prompt = &survey.Select{
 		Message: "Would you like to select a web server? (Optional)",
-		Options: append([]string{"Skip"}, webserverOptions...),
+		Options: webserverOptions,
 	}
 	survey.AskOne(prompt, &selectedWebserver)
 	if selectedWebserver == "Skip" {

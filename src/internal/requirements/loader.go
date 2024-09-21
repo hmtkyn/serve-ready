@@ -20,7 +20,14 @@ func ListFilesInDirectory(dir string) ([]string, error) {
 		return nil, fmt.Errorf("could not determine working directory: %w", err)
 	}
 
-	fullPath := filepath.Join(basePath, "src", "internal", dir)
+	var fullPath string
+	if dir == "frameworks" {
+		// Use the correct path for frameworks
+		fullPath = filepath.Join(basePath, "src", "internal", "frameworks")
+	} else {
+		// Use the correct path for services (databases, caches, etc.)
+		fullPath = filepath.Join(basePath, "src", "internal", "services", dir)
+	}
 
 	files, err := os.ReadDir(fullPath)
 	if err != nil {
