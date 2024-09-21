@@ -124,13 +124,3 @@ If you would like to contribute to the project:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-```
-
-### Açıklama:
-- `README.md` dosyası, proje hakkında genel bilgi verir, kurulumu, build ve çalıştırma adımlarını açıklar.
-- Proje klasör yapısını ve hangi dosyaların ne amaçla kullanıldığını belirtir.
-- Kullanıcılar için nasıl katkıda bulunabileceklerini açıklar.
-
-Bu dosyayı `README.md` olarak projenize ekleyebilirsiniz.
-```
