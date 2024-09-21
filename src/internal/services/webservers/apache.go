@@ -1,17 +1,25 @@
-package services
+package webservers
 
 import (
 	"fmt"
 	"os/exec"
+	"serve-ready/src/pkg/config"
 )
 
-func CheckApacheVersion(requiredVersion string) bool {
-	fmt.Printf("Apache Requirement: %s ", requiredVersion)
-	apacheVersion, err := exec.Command("apache2", "-v").Output()
+func CheckApache() bool {
+	key := "Apache"
+	value := "Checking configuration"
+
+	fmt.Printf("%s: %s\n", config.Colorize(key, config.Cyan), config.Colorize(value, config.Yellow))
+
+	cmd := exec.Command("apachectl", "-v")
+	err := cmd.Run()
+
 	if err != nil {
-		fmt.Printf("%s Apache is not installed or version mismatch.\n", redCross)
+		fmt.Printf("%s: %s %s\n", config.Colorize("Error", config.Red), config.Colorize("Apache is not installed or configured.", config.Yellow), config.Colorize("✖", config.Red))
 		return false
 	}
-	fmt.Printf("%s Apache version is compatible: %s\n", greenCheck, string(apacheVersion))
+
+	fmt.Printf("%s: %s %s\n", config.Colorize("Apache", config.Cyan), config.Colorize("Configured correctly", config.Green), config.Colorize("✔", config.Green))
 	return true
 }

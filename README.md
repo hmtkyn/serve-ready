@@ -10,41 +10,74 @@ Serve-Ready is a CLI tool designed to check if a server meets the necessary requ
 ├── /builds                 # Folder for build outputs
 │   └── /cli                # Contains the CLI binary
 ├── /src                    # Source files for the project
-│   ├── /caches             # Cache configuration files
 │   ├── /cmd                # Main entry point for the CLI
-│   ├── /databases          # Database configuration files
-│   ├── /frameworks         # Framework configuration files
-│   └── /internal           # Internal logic for CLI and requirements
-│       ├── /cli            # CLI prompt logic
-│       └── /requirements   # Requirement loader and checker
+│   ├── /internal           # Internal logic for CLI and requirements
+│   │   ├── /cli            # CLI prompt logic
+│   │   ├── /frameworks     # Framework configuration files
+│   │   ├── /requirements   # Requirement loader and checker
+│   │   ├── /services       # Services for caches, databases, runtimes, webservers
+│   │   │   ├── /caches     # Cache services (e.g., Redis, Memcached)
+│   │   │   ├── /databases  # Database services (e.g., MySQL, PostgreSQL)
+│   │   │   ├── /runtimes   # Runtime services (e.g., PHP, Node.js)
+│   │   │   └── /webservers # Web server services (e.g., Nginx, Apache)
+│   └── /pkg                # Package utilities such as configuration and colors
 ├── go.mod                  # Go module definition
 └── go.sum                  # Go dependencies checksum file
 ```
 
 ### Frameworks
 
-The supported frameworks for the tool are defined in `.yml` files located in the `src/frameworks/` folder.
+The supported frameworks for the tool are defined in `.yml` files located in the `src/internal/frameworks/` folder.
 
 - **Supported Frameworks**:
   - Laravel
   - Next.js
   - Django
+  - FastAPI
+  - Flask
+  - Remix.js
 
 ### Databases
 
-The supported databases for the tool are defined in `.yml` files located in the `src/databases/` folder.
+The supported databases for the tool are defined in `.yml` files located in the `src/internal/services/databases/` folder.
 
 - **Supported Databases**:
   - MySQL
   - PostgreSQL
+  - MariaDB
+  - MongoDB
 
 ### Caches
 
-The supported caches for the tool are defined in `.yml` files located in the `src/caches/` folder.
+The supported caches for the tool are defined in `.yml` files located in the `src/internal/services/caches/` folder.
 
 - **Supported Caches**:
   - Redis
-  - Firebase
+  - Memcached
+
+### Web Servers
+
+The supported web servers for the tool are defined in `.yml` files located in the `src/internal/services/webservers/` folder.
+
+- **Supported Web Servers**:
+  - Nginx
+  - Apache
+  - Caddy
+  - Lighttpd
+  - Tomcat
+
+### Runtimes
+
+The supported runtimes for the tool are located in the `src/internal/services/runtimes/` folder.
+
+- **Supported Runtimes**:
+  - PHP
+  - Node.js
+  - Python
+  - Java
+  - Go
+  - Rust
+  - C#
 
 ## Installation
 
@@ -85,10 +118,11 @@ The tool will guide you through selecting a framework, database, cache, and web 
 ## How the Tool Works
 
 1. **Framework Selection**: The tool will prompt you to select a framework from the available options.
-2. **Database Selection**: Optionally, you can select a database from the available options.
-3. **Cache Selection**: Optionally, you can select a cache system from the available options.
-4. **Web Server Selection**: Optionally, you can select a web server from the available options.
-5. **Requirement Checking**: The tool will check for the required versions of PHP, Node.js, Python, and any additional packages or extensions required by the selected framework.
+2. **Runtime & Package Manager Check**: Depending on the selected framework, the tool will check the runtime (e.g., PHP, Node.js) and relevant package managers (e.g., Composer, NPM).
+3. **Database Selection**: Optionally, you can select a database from the available options.
+4. **Cache Selection**: Optionally, you can select a cache system from the available options.
+5. **Web Server Selection**: Optionally, you can select a web server from the available options.
+6. **Requirement Checking**: The tool will check for the required versions of PHP, Node.js, Python, and any additional packages or extensions required by the selected framework.
 
 ## Project Setup
 
@@ -97,10 +131,11 @@ The project source files are located inside the `src` directory. Here is the bre
 - **`src/cmd/main.go`**: The entry point for the CLI tool.
 - **`src/internal/requirements`**: Contains the logic for loading `.yml` files and checking server requirements.
 - **`src/internal/cli`**: Contains the logic for prompting the user for input.
+- **`src/internal/services`**: Contains the logic for checking services such as caches, databases, runtimes, and web servers.
 
 ## Development
 
-To modify the source code, update the files under the `src/` directory. For example, to add more frameworks or databases, you can add `.yml` files in the respective folders (`src/frameworks/`, `src/databases/`, `src/caches/`).
+To modify the source code, update the files under the `src/` directory. For example, to add more frameworks or databases, you can add `.yml` files in the respective folders (`src/internal/frameworks/`, `src/internal/services/databases/`, `src/internal/services/caches/`).
 
 After making changes, rebuild the CLI:
 
@@ -110,7 +145,7 @@ go build -o ./builds/cli/serve-ready ./src/cmd/main.go
 
 ## Known Issues
 
-- Ensure that the `src/frameworks/`, `src/databases/`, and `src/caches/` folders contain valid `.yml` configuration files.
+- Ensure that the `src/internal/frameworks/`, `src/internal/services/databases/`, and `src/internal/services/caches/` folders contain valid `.yml` configuration files.
 - The tool must be run from the root directory where the `src` folder is located.
 
 ## Contributing

@@ -1,0 +1,17 @@
+framework: Laravel
+php_version: ">=8.2"
+required_extensions:
+  - "Ctype"
+  - "cURL"
+  - "DOM"
+  - "Fileinfo"
+  - "Filter"
+  - "Hash"
+  - "Mbstring"
+  - "OpenSSL"
+  - "PCRE"
+  - "PDO"
+  - "Session"
+  - "Tokenizer"
+  - "XML"
+package_manager: "Composer"

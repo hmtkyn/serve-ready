@@ -1,17 +1,25 @@
-package services
+package caches
 
 import (
 	"fmt"
 	"os/exec"
+	"serve-ready/src/pkg/config"
 )
 
-func CheckRedisVersion(requiredVersion string) bool {
-	fmt.Printf("Redis Requirement: %s ", requiredVersion)
-	redisVersion, err := exec.Command("redis-server", "--version").Output()
+func CheckRedisCache() bool {
+	key := "Redis Cache"
+	value := "Checking configuration"
+
+	fmt.Printf("%s: %s\n", config.Colorize(key, config.Cyan), config.Colorize(value, config.Yellow))
+
+	cmd := exec.Command("redis-server", "--version")
+	err := cmd.Run()
+
 	if err != nil {
-		fmt.Printf("%s Redis is not installed or version mismatch.\n", redCross)
+		fmt.Printf("%s: %s %s\n", config.Colorize("Error", config.Red), config.Colorize("Redis is not configured.", config.Yellow), config.Colorize("✖", config.Red))
 		return false
 	}
-	fmt.Printf("%s Redis version is compatible: %s\n", greenCheck, string(redisVersion))
+
+	fmt.Printf("%s: %s %s\n", config.Colorize("Redis Cache", config.Cyan), config.Colorize("Configured correctly", config.Green), config.Colorize("✔", config.Green))
 	return true
 }

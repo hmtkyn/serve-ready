@@ -1,32 +1,25 @@
-package services
+package runtimes
 
 import (
 	"fmt"
 	"os/exec"
-	"strings"
+	"serve-ready/src/pkg/config"
 )
 
-func CheckNodeVersion(requiredVersion string) bool {
-	fmt.Printf("Node.js Requirement: %s ", requiredVersion)
-	nodeVersion, err := CheckVersion("node", "-v")
-	if err != nil || !strings.Contains(nodeVersion, requiredVersion) {
-		fmt.Printf("%s Node.js is not installed or version mismatch.\n", redCross)
+func CheckNodeJS() bool {
+	key := "Node.js"
+	value := "Checking configuration"
+
+	fmt.Printf("%s: %s\n", config.Colorize(key, config.Cyan), config.Colorize(value, config.Yellow))
+
+	cmd := exec.Command("node", "--version")
+	err := cmd.Run()
+
+	if err != nil {
+		fmt.Printf("%s: %s %s\n", config.Colorize("Error", config.Red), config.Colorize("Node.js is not installed or configured.", config.Yellow), config.Colorize("✖", config.Red))
 		return false
 	}
-	fmt.Printf("%s Node.js version is compatible: %s\n", greenCheck, nodeVersion)
-	return true
-}
 
-func CheckNodePackages(requiredPackages []string) bool {
-	allPassed := true
-	for _, pkg := range requiredPackages {
-		_, err := exec.Command("npm", "list", pkg).Output()
-		if err != nil {
-			fmt.Printf("%s Node Package '%s' is missing.\n", redCross, pkg)
-			allPassed = false
-		} else {
-			fmt.Printf("%s Node Package '%s' is installed.\n", greenCheck, pkg)
-		}
-	}
-	return allPassed
+	fmt.Printf("%s: %s %s\n", config.Colorize("Node.js", config.Cyan), config.Colorize("Configured correctly", config.Green), config.Colorize("✔", config.Green))
+	return true
 }

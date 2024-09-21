@@ -1,6 +1,0 @@
-php_version: ">=8.1"
-extensions:
-  - "bcmath"
-  - "ctype"
-  - "json"
-  - "mbstring"

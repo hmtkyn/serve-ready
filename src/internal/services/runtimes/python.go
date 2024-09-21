@@ -1,37 +1,25 @@
-package services
+package runtimes
 
 import (
 	"fmt"
 	"os/exec"
-	"strings"
+	"serve-ready/src/pkg/config"
 )
 
-const (
-	greenCheck = "\033[32m✔\033[0m"
-	redCross   = "\033[31m✘\033[0m"
-)
+func CheckPython() bool {
+	key := "Python"
+	value := "Checking configuration"
 
-func CheckPythonVersion(requiredVersion string) bool {
-	fmt.Printf("Python Requirement: %s ", requiredVersion)
-	pythonVersion, err := CheckVersion("python3", "--version")
-	if err != nil || !strings.Contains(pythonVersion, requiredVersion) {
-		fmt.Printf("%s Python is not installed or version mismatch.\n", redCross)
+	fmt.Printf("%s: %s\n", config.Colorize(key, config.Cyan), config.Colorize(value, config.Yellow))
+
+	cmd := exec.Command("python", "--version")
+	err := cmd.Run()
+
+	if err != nil {
+		fmt.Printf("%s: %s %s\n", config.Colorize("Error", config.Red), config.Colorize("Python is not installed or configured.", config.Yellow), config.Colorize("✖", config.Red))
 		return false
 	}
-	fmt.Printf("%s Python version is compatible: %s\n", greenCheck, pythonVersion)
-	return true
-}
 
-func CheckPythonPackages(requiredPackages []string) bool {
-	allPassed := true
-	for _, pkg := range requiredPackages {
-		_, err := exec.Command("pip3", "show", pkg).Output()
-		if err != nil {
-			fmt.Printf("%s Package '%s' is missing.\n", redCross, pkg)
-			allPassed = false
-		} else {
-			fmt.Printf("%s Package '%s' is installed.\n", greenCheck, pkg)
-		}
-	}
-	return allPassed
+	fmt.Printf("%s: %s %s\n", config.Colorize("Python", config.Cyan), config.Colorize("Configured correctly", config.Green), config.Colorize("✔", config.Green))
+	return true
 }

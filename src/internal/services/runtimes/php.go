@@ -1,46 +1,53 @@
-package services
+package runtimes
 
 import (
+	"bytes"
 	"fmt"
 	"os/exec"
+	"serve-ready/src/pkg/config"
 	"strings"
 )
 
-func CheckPHPVersion(requiredVersion string) bool {
-	fmt.Printf("PHP Requirement: %s ", requiredVersion)
-	phpVersion, err := CheckVersion("php", "-v")
-	if err != nil || !strings.Contains(phpVersion, requiredVersion) {
-		fmt.Printf("%s PHP is not installed or version mismatch.\n", redCross)
+func CheckPHP(requiredVersion string, requiredExtensions []string) bool {
+	key := "PHP"
+	value := "Checking configuration"
+
+	fmt.Printf("%s: %s\n", config.Colorize(key, config.Cyan), config.Colorize(value, config.Yellow))
+
+	var stderr bytes.Buffer
+	cmd := exec.Command("php", "-v")
+	cmd.Stderr = &stderr
+
+	err := cmd.Run()
+	if err != nil || !checkVersion(stderr.String(), requiredVersion) {
+		fmt.Printf("%s: %s %s\n", config.Colorize("Error", config.Red), config.Colorize("PHP version is not compatible", config.Yellow), config.Colorize("✖", config.Red))
 		return false
 	}
-	fmt.Printf("%s PHP version is compatible: %s\n", greenCheck, phpVersion)
+
+	cmd = exec.Command("php", "-m")
+	modulesOutput, err := cmd.Output()
+	if err != nil {
+		fmt.Printf("%s: %s %s\n", config.Colorize("Error", config.Red), config.Colorize("Failed to get PHP modules", config.Yellow), config.Colorize("✖", config.Red))
+		return false
+	}
+
+	for _, ext := range requiredExtensions {
+		if !strings.Contains(string(modulesOutput), ext) {
+			fmt.Printf("%s: %s %s\n", config.Colorize("Error", config.Red), config.Colorize(fmt.Sprintf("Missing PHP extension: %s", ext), config.Yellow), config.Colorize("✖", config.Red))
+			return false
+		}
+	}
+
+	fmt.Printf("%s: %s %s\n", config.Colorize("PHP", config.Cyan), config.Colorize("Version and extensions are compatible", config.Green), config.Colorize("✔", config.Green))
 	return true
 }
 
-func CheckPHPExtensions(requiredExtensions []string) bool {
-	allPassed := true
-	for _, ext := range requiredExtensions {
-		_, err := exec.Command("php", "-m").Output()
-		if err != nil || !strings.Contains(string(err.Error()), ext) {
-			fmt.Printf("%s PHP Extension '%s' is missing.\n", redCross, ext)
-			allPassed = false
-		} else {
-			fmt.Printf("%s PHP Extension '%s' is installed.\n", greenCheck, ext)
-		}
+func checkVersion(output, requiredVersion string) bool {
+	versionLine := strings.Split(output, "\n")[0]
+	parts := strings.Fields(versionLine)
+	if len(parts) >= 2 {
+		version := parts[1]
+		return version >= requiredVersion
 	}
-	return allPassed
-}
-
-func CheckComposerPackages(requiredPackages []string) bool {
-	allPassed := true
-	for _, pkg := range requiredPackages {
-		_, err := exec.Command("composer", "show", pkg).Output()
-		if err != nil {
-			fmt.Printf("%s Composer Package '%s' is missing.\n", redCross, pkg)
-			allPassed = false
-		} else {
-			fmt.Printf("%s Composer Package '%s' is installed.\n", greenCheck, pkg)
-		}
-	}
-	return allPassed
+	return false
 }
